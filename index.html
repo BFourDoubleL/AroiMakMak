@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RGMS · ระบบบริหารจัดการทุนวิจัย มฟล.</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="section" style="min-height:100vh; display:flex; align-items:center;">
+  <div class="container container--narrow stack gap-6">
+
+    <div class="stack gap-2 text-center">
+      <span class="text-overline">Research Grant Management System · Prototype v1</span>
+      <h1 class="text-display">ระบบบริหารจัดการทุนวิจัย<br>มหาวิทยาลัยแม่ฟ้าหลวง</h1>
+      <p class="text-body-lg text-muted">ทุนงบประมาณเงินรายได้ — MVP เฟส 1: ยื่นข้อเสนอ → เอนดอร์สระดับสำนักวิชา → ส่วนบริหารงานวิจัยตรวจ →
+        คณะอนุกรรมการให้ข้อคิดเห็น/รับรอง (วนแก้ไขได้) → คกก.ส่งเสริมมีมติ → ประกาศโครงการที่ผ่าน
+        ครบในระบบเดียว ทุกโครงการมีสถานะกลางเดียวที่ทุกฝ่ายเห็นตรงกัน</p>
+    </div>
+
+    <div class="card card--flat" style="background:transparent; border:none; padding:0;">
+      <p class="text-overline text-center" style="margin-bottom:var(--space-4);">เลือกบทบาทเพื่อทดลองใช้งาน (โหมดสาธิต)</p>
+      <div class="grid grid-2" id="role-grid"></div>
+    </div>
+
+   <div class="notice notice--info">
+      <span class="notice__title">นี่คือ prototype เชิงสาธิต (clickable)</span>
+      <span class="notice__body">ข้อมูลทั้งหมดเป็นข้อมูลจำลอง การกดปุ่มต่าง ๆ จะแสดงพฤติกรรมของระบบจริง แต่ยังไม่บันทึกถาวร
+        ขอบเขตรอบนี้ (MVP เฟส 1) จบที่ "ประกาศโครงการที่ผ่าน" — เฟสดำเนินโครงการ/ปิดโครงการ/เปลี่ยนแปลง ไม่อยู่ใน prototype นี้</span>
+      <div style="margin-top: 12px; text-align: right;">
+        <button class="btn btn-secondary btn-sm" onclick="RGMS.resetDemoData()">
+          ↺ รีเซ็ตข้อมูลจำลองกลับสู่ค่าเริ่มต้น
+        </button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="shared.js"></script>
+<script>
+  var roles = [
+    { id: "researcher", desc: "ยื่นข้อเสนอออนไลน์ ติดตามสถานะ ส่งรายงานความก้าวหน้า/ฉบับสมบูรณ์ และเอกสารการเงิน" },
+    { id: "chair", desc: "ประธานวิจัย/คณบดี พิจารณารับรองข้อเสนอของสำนักวิชาก่อนส่งส่วนบริหารงานวิจัย (ผ่าน/ส่งกลับแก้ไข)" },
+    { id: "secretary", desc: "เลขาสำนักวิชา ติดตามเอกสาร ข้อคอมเมนต์ และสถานะของนักวิจัยในสำนักวิชาของตน" },
+    { id: "staff", desc: "ตรวจความครบถ้วนอัตโนมัติ กล่องงานรวม ติดตามการแก้ไขตามข้อคิดเห็น และเตรียมประกาศผล" },
+    { id: "reviewer", desc: "คณะอนุกรรมการ (แทร็กเนื้อหา) ให้ข้อคิดเห็น/ข้อเสนอแนะ หรือรับรองเนื้อหาข้อเสนอโครงการ (ไม่ใช่การให้คะแนน)" },
+    { id: "finance", desc: "เจ้าหน้าที่การเงิน (แทร็กการเงิน) รับตรวจโครงการแบบ claim แล้วเป็นผู้รับผิดชอบต่อเนื่องทุกรอบ ตรวจงบ 17.2" },
+    { id: "exec", desc: "ดูรายชื่อโครงการที่ผ่านการพิจารณาจากคณะอนุกรรมการ+การเงินครบทั้ง 2 แทร็ก บันทึกมติ คกก.ส่งเสริม และประกาศผล" }
+  ];
+  var grid = document.getElementById("role-grid");
+  grid.innerHTML = roles.map(function (r) {
+    var role = RGMS.ROLES[r.id];
+    return '<button class="card" style="text-align:left; cursor:pointer; display:flex; flex-direction:column; gap:8px;" data-role="' + r.id + '">' +
+      '<div class="cluster gap-2"><span class="avatar">' + role.short + '</span>' +
+      '<span class="text-subhead">' + role.label + '</span></div>' +
+      '<span class="text-sm text-muted">' + r.desc + '</span>' +
+      '<span class="text-sm text-accent" style="font-weight:600; margin-top:4px;">เข้าใช้งาน →</span>' +
+      '</button>';
+  }).join("");
+  grid.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-role]");
+    if (!btn) return;
+    var id = btn.getAttribute("data-role");
+    RGMS.setRole(id);
+    window.location.href = RGMS.ROLES[id].home;
+  });
+</script>
+</body>
+</html>
