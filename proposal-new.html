@@ -369,6 +369,43 @@
     recompute();
   });
 
+// ตัวอย่างการแก้ไขจุดเรนเดอร์กล่องแจ้งเตือน
+var alertBox = document.getElementById("success-alert-container");
+
+// เคลียร์ของเก่าทิ้งก่อนเรนเดอร์กล่องใหม่เสมอ (ป้องกันการแสดงซ้ำ)
+alertBox.innerHTML = ''; 
+
+var successHTML = `
+  <div class="card card--featured style="margin-top:20px;">
+    <div class="between">
+      <h3 class="text-subhead text-ok">ยื่นข้อเสนอสำเร็จ</h3>
+      <button class="btn btn-ghost btn-sm" onclick="this.closest('.card').remove()">ปิด ✕</button>
+    </div>
+    <div class="notice notice--ok" style="margin-top:12px;">
+      <span class="notice__title">ระบบรับข้อเสนอแล้ว · รหัส P-2570-001</span>
+      <span class="notice__body">ประเภททุน: ทุนนักวิจัยใหม่ · งบประมาณรวม ฿ 100,000 ...</span>
+    </div>
+    <a class="btn btn-primary btn-md" href="researcher-home.html" style="margin-top:12px; align-self:flex-start;">
+      กลับหน้าโครงการของฉัน
+    </a>
+  </div>
+`;
+
+alertBox.innerHTML = successHTML;
+
+  var submitBtn = document.getElementById("btn-submit-proposal");
+
+submitBtn.addEventListener("click", function (e) {
+  e.preventDefault();
+  
+  // 1. ปิดปุ่มทันทีเพื่อป้องกันกดซ้ำ
+  submitBtn.disabled = true;
+  submitBtn.textContent = "กำลังยื่นข้อเสนอ...";
+
+  // 2. บันทึกข้อมูลและแสดงผลแจ้งเตือนเพียงครั้งเดียว
+  // ... (Logic บันทึกข้อมูล) ...
+});
+  
   /* ==========================================================
      0. อัปโหลด RS-01 (.docx) → ดึงข้อมูลไปเติมฟอร์ม
      ========================================================== */
@@ -439,6 +476,8 @@
     });
     document.getElementById("discard-extract").addEventListener("click", function () { box.style.display = "none"; });
   }
+
+  
  function handleDocx(file) {
     if (!/\.docx$/i.test(file.name)) { RGMS.toast("รองรับเฉพาะ .docx — โปรด Save as .docx ก่อน", "accent"); return; }
     
