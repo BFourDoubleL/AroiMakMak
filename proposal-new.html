@@ -255,7 +255,6 @@
 <script src="shared.js"></script>
 <script>
   RGMS.renderAppNav("proposal-new");
-  
 
   /* --- gate การยื่นตามรอบที่เปิดรับ (FR-03) --- */
   var __oc = RGMS.openCall();
@@ -298,7 +297,6 @@
           (PROF.expertise ? '<div class="text-sm" style="margin-top:4px;"><span class="text-overline">เชี่ยวชาญ</span> ' + PROF.expertise + '</div>' : '') +
         '</div>' +
       '</div>';
-    // prefill สำนักวิชาจากโปรไฟล์
     if (PROF.school) document.getElementById("f-school").value = PROF.school;
   })();
 
@@ -369,43 +367,6 @@
     recompute();
   });
 
-// ตัวอย่างการแก้ไขจุดเรนเดอร์กล่องแจ้งเตือน
-var alertBox = document.getElementById("success-alert-container");
-
-// เคลียร์ของเก่าทิ้งก่อนเรนเดอร์กล่องใหม่เสมอ (ป้องกันการแสดงซ้ำ)
-alertBox.innerHTML = ''; 
-
-var successHTML = `
-  <div class="card card--featured style="margin-top:20px;">
-    <div class="between">
-      <h3 class="text-subhead text-ok">ยื่นข้อเสนอสำเร็จ</h3>
-      <button class="btn btn-ghost btn-sm" onclick="this.closest('.card').remove()">ปิด ✕</button>
-    </div>
-    <div class="notice notice--ok" style="margin-top:12px;">
-      <span class="notice__title">ระบบรับข้อเสนอแล้ว · รหัส P-2570-001</span>
-      <span class="notice__body">ประเภททุน: ทุนนักวิจัยใหม่ · งบประมาณรวม ฿ 100,000 ...</span>
-    </div>
-    <a class="btn btn-primary btn-md" href="researcher-home.html" style="margin-top:12px; align-self:flex-start;">
-      กลับหน้าโครงการของฉัน
-    </a>
-  </div>
-`;
-
-alertBox.innerHTML = successHTML;
-
-  var submitBtn = document.getElementById("btn-submit-proposal");
-
-submitBtn.addEventListener("click", function (e) {
-  e.preventDefault();
-  
-  // 1. ปิดปุ่มทันทีเพื่อป้องกันกดซ้ำ
-  submitBtn.disabled = true;
-  submitBtn.textContent = "กำลังยื่นข้อเสนอ...";
-
-  // 2. บันทึกข้อมูลและแสดงผลแจ้งเตือนเพียงครั้งเดียว
-  // ... (Logic บันทึกข้อมูล) ...
-});
-  
   /* ==========================================================
      0. อัปโหลด RS-01 (.docx) → ดึงข้อมูลไปเติมฟอร์ม
      ========================================================== */
@@ -428,21 +389,12 @@ submitBtn.addEventListener("click", function (e) {
       if (idx < 0) continue;
       var from = idx + starts[si].length;
       var rest = text.slice(from);
-      // ตัดที่ stop label ตัวแรกที่เจอ
       var end = rest.length;
       stops.forEach(function (st) { var p = rest.toLowerCase().indexOf(st.toLowerCase()); if (p >= 0 && p < end) end = p; });
       var val = cleanVal(rest.slice(0, end));
       if (val.length >= 2) return val.slice(0, 1200);
     }
     return "";
-  }
-  function matchSelect(id, val) {
-    if (!val) return;
-    var sel = document.getElementById(id);
-    var opt = Array.prototype.filter.call(sel.options, function (o) {
-      return o.value && (o.value.toLowerCase().indexOf(val.toLowerCase().slice(0, 8)) >= 0 || val.toLowerCase().indexOf(o.value.toLowerCase().slice(0, 8)) >= 0);
-    })[0];
-    if (opt) sel.value = opt.value;
   }
   function reviewExtracted(found, sourceLabel) {
     var box = document.getElementById("doc-parsed");
@@ -468,7 +420,6 @@ submitBtn.addEventListener("click", function (e) {
         '<button class="btn btn-ghost btn-sm" id="discard-extract">ยกเลิก</button></div>';
     document.getElementById("apply-extract").addEventListener("click", function () {
       keys.forEach(function (k) { document.getElementById(k).value = found[k]; });
-      // เดา research type จากข้อความ (ถ้ามี)
       RGMS.toast("เติมข้อมูลจากไฟล์แล้ว — โปรดตรวจทานและเติมส่วนที่ขาด", "ok");
       box.style.display = "none";
       document.querySelector(".card h2").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -477,11 +428,9 @@ submitBtn.addEventListener("click", function (e) {
     document.getElementById("discard-extract").addEventListener("click", function () { box.style.display = "none"; });
   }
 
-  
- function handleDocx(file) {
+  function handleDocx(file) {
     if (!/\.docx$/i.test(file.name)) { RGMS.toast("รองรับเฉพาะ .docx — โปรด Save as .docx ก่อน", "accent"); return; }
     
-    // แทรก Spinner แสดงการประมวลผล
     var dz = document.getElementById("doc-drop");
     if (dz) {
       dz.innerHTML = 
@@ -717,7 +666,7 @@ submitBtn.addEventListener("click", function (e) {
   /* ==========================================================
      5. เอกสารแนบ + ตรวจความพร้อม
      ========================================================== */
-  var manualDocsOn = {};   // key -> attached (สำหรับรายการที่ต้องแนบเอง)
+  var manualDocsOn = {};
   function docList() {
     var list = [
       { key: "form", label: "แบบฟอร์มข้อเสนอโครงการ (RS-01)", auto: true, note: "ระบบสร้างจากที่กรอก" },
@@ -780,8 +729,14 @@ submitBtn.addEventListener("click", function (e) {
   renderDocs();
   recompute();
 
+  /* ==========================================================
+     การส่งข้อเสนอโครงการ ( submit-btn )
+     ========================================================== */
   document.getElementById("submit-btn").addEventListener("click", function () {
+    var btn = this;
+    btn.disabled = true; // กันการกดซ้ำ
     var total = activeBudget().reduce(function (s, b) { return s + b.total; }, 0);
+    
     RGMS.modal({
       title: "ยื่นข้อเสนอสำเร็จ",
       body: '<div class="notice notice--ok"><span class="notice__title">ระบบรับข้อเสนอแล้ว · รหัส P-2570-001</span>' +
@@ -790,42 +745,6 @@ submitBtn.addEventListener("click", function (e) {
       foot: '<a class="btn btn-primary btn-md" href="researcher-home.html">กลับหน้าโครงการของฉัน</a>'
     });
   });
-
-/* ==========================================================
-     ฟังก์ชันตรวจเช็กการล็อกฟิลด์กรณีแทร็กเนื้อหาอนุมัติแล้ว (FR-5)
-     ========================================================== */
-  function checkAndApplyFieldLock(projectId) {
-    if (!projectId) return;
-    var contentCleared = RGMS.contentTrackStatus(projectId) === "cleared";
-    
-    if (contentCleared) {
-      // 1. แสดง Badge เตือนว่าถูกล็อก
-      document.getElementById("locked-badge-box").innerHTML = 
-        '<span class="badge-locked">[อนุมัติแล้ว - ห้ามแก้ไขเนื้อหา]</span>';
-
-      // 2. ปรับฟิลด์ข้อมูลหลักให้เป็น Read-Only และใส่คลาสล็อก
-      var fieldsToLock = ["f-title", "f-title-en", "f-abstract", "f-objective", "f-scope", "f-outcome"];
-      fieldsToLock.forEach(function(id) {
-        var el = document.getElementById(id);
-        if (el) {
-          el.readOnly = true;
-          el.classList.add("field-control--locked");
-        }
-      });
-      
-      // 3. ปิดการเปลี่ยนตัวเลือก
-      ["f-school", "f-duration", "f-rtype", "f-strategy"].forEach(function(id) {
-        var el = document.getElementById(id);
-        if (el) {
-          el.disabled = true;
-          el.classList.add("field-control--locked");
-        }
-      });
-    }
-  }
-
-  // เรียกใช้งานสแกนล็อกฟิลด์ (ตัวอย่างส่ง ID โครงการ P-2569-037)
-  // checkAndApplyFieldLock("P-2569-037");
 
 </script>
 </body>
