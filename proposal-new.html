@@ -732,17 +732,17 @@
   /* ==========================================================
      การส่งข้อเสนอโครงการ ( submit-btn )
      ========================================================== */
-  document.getElementById("submit-btn").addEventListener("click", function () {
-    var btn = this;
-    btn.disabled = true; // กันการกดซ้ำ
+document.getElementById("submit-btn").addEventListener("click", function () {
     var total = activeBudget().reduce(function (s, b) { return s + b.total; }, 0);
     
     RGMS.modal({
-      title: "ยื่นข้อเสนอสำเร็จ",
-      body: '<div class="notice notice--ok"><span class="notice__title">ระบบรับข้อเสนอแล้ว · รหัส P-2570-001</span>' +
-        '<span class="notice__body">ประเภททุน: ' + RGMS.TIERS[currentTier].label + ' · งบประมาณรวม ' + RGMS.fmtBaht(total) + ' — ระบบประกอบ RS-01 (ส่วน ก จากที่กรอก + ส่วน ข จากโปรไฟล์) และตาราง 17/17.2 ให้อัตโนมัติ พร้อมส่งเข้ากล่องงานเจ้าหน้าที่</span></div>' +
-        '<p class="text-sm text-muted" style="margin-top:12px;">ครั้งถัดไปที่ยื่น ข้อมูลหัวหน้าโครงการและประวัติจะถูกดึงจากโปรไฟล์ให้อัตโนมัติ — ไม่ต้องกรอกซ้ำ</p>',
-      foot: '<a class="btn btn-primary btn-md" href="researcher-home.html">กลับหน้าโครงการของฉัน</a>'
+      title: "ยื่นข้อเสนอโครงการสำเร็จ",
+      body: '<div class="notice notice--ok" style="margin-bottom:12px;">' +
+              '<span class="notice__title">ระบบรับข้อเสนอแล้ว · รหัส P-2570-001</span>' +
+              '<span class="notice__body">ประเภททุน: ' + RGMS.TIERS[currentTier].label + ' · งบประมาณรวม ' + RGMS.fmtBaht(total) + ' — ระบบประกอบ RS-01 และตาราง 17/17.2 ให้อัตโนมัติ พร้อมส่งเข้ากล่องงานเจ้าหน้าที่</span>' +
+            '</div>' +
+            '<p class="text-sm text-muted">ครั้งถัดไปที่ยื่น ข้อมูลหัวหน้าโครงการและประวัติจะถูกดึงจากโปรไฟล์ให้อัตโนมัติ — ไม่ต้องกรอกซ้ำ</p>',
+      foot: '<a class="btn btn-primary btn-md" href="researcher-home.html" style="width:100%; text-align:center;">กลับหน้าโครงการของฉัน</a>'
     });
   });
 
