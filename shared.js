@@ -30,34 +30,22 @@
      นิยามระยะของวงจรทุน (lifecycle) — mapped จากหมวดเอกสารบนหน้าเว็บ มฟล.
      6 ระยะใหญ่: เปิดรับ → ยื่น → ตรวจ+กลั่นกรอง → ดำเนินโครงการ → ปิดโครงการ → เปลี่ยนแปลง
      ----------------------------------------------------------------------- */
+ /* เพิ่มสถานะ endorse และปรับลำดับ Lifecycle ให้ครบ 6 ขั้นตอน */
   var STAGES = {
-    draft:      { id: "draft",      label: "ร่างข้อเสนอ",            badge: "badge-draft",  phase: 2, order: 1 },
-    submitted:  { id: "submitted",  label: "ยื่นแล้ว · รอตรวจเอกสาร", badge: "badge-wait",   phase: 3, order: 2 },
-    screening:  { id: "screening",  label: "เจ้าหน้าที่ตรวจเอกสาร",   badge: "badge-wait",   phase: 3, order: 3 },
-    review:     { id: "review",     label: "พิจารณา 2 แทร็ก (เนื้อหา/การเงิน)", badge: "badge-review", phase: 3, order: 4 },
-    committee:  { id: "committee",  label: "เข้าวาระ · รอมติกรรมการ", badge: "badge-review", phase: 3, order: 5 },
-    revise:     { id: "revise",     label: "ให้ปรับแก้ตามมติ",        badge: "badge-revise", phase: 3, order: 6 },
-    approved:   { id: "approved",   label: "มติ: อนุมัติ · รอประกาศ",  badge: "badge-ok",     phase: 3, order: 7 },
-    rejected:   { id: "rejected",   label: "มติ: ไม่อนุมัติ",          badge: "badge-reject", phase: 3, order: 7 },
-    announced:  { id: "announced",  label: "ประกาศผลแล้ว",            badge: "badge-ok",     phase: 3, order: 8 },
-    /* สถานะเฟส 4–5 (ดำเนินโครงการ/ปิดโครงการ) — อยู่นอกขอบเขต MVP นี้ คงไว้เพื่อไม่ให้ข้อมูลจำลองเดิมพัง
-       (ไม่มีหน้าจอ/แอ็กชันสำหรับสถานะเหล่านี้ในเวอร์ชันนี้) */
-    ongoing:    { id: "ongoing",    label: "ดำเนินโครงการ (นอกขอบเขต)",         badge: "badge-info",   phase: 4, order: 9 },
-    progress:   { id: "progress",   label: "ดำเนินโครงการ (นอกขอบเขต)",         badge: "badge-info",   phase: 4, order: 9 },
-    final:      { id: "final",      label: "ปิดโครงการ (นอกขอบเขต)",            badge: "badge-wait",   phase: 5, order: 10 },
-    financial:  { id: "financial",  label: "ปิดโครงการ (นอกขอบเขต)",            badge: "badge-wait",   phase: 5, order: 10 },
-    closed:     { id: "closed",     label: "ปิดโครงการสมบูรณ์ (นอกขอบเขต)",     badge: "badge-ok",     phase: 5, order: 11 }
+    draft:      { id: "draft",      label: "ร่างข้อเสนอ", badge: "badge-draft", phase: 2, order: 1 },
+    submitted:  { id: "submitted",  label: "ยื่นข้อเสนอโครงการแล้ว", badge: "badge-wait", phase: 3, order: 2 },
+    endorse:    { id: "endorse",    label: "รอรับรองระดับสำนักวิชา", badge: "badge-wait", phase: 3, order: 3 },
+    screening:  { id: "screening",  label: "เจ้าหน้าที่ตรวจความครบถ้วน", badge: "badge-wait", phase: 3, order: 4 },
+    review:     { id: "review",     label: "พิจารณา 2 แทร็ก (เนื้อหา/การเงิน)", badge: "badge-review", phase: 3, order: 5 },
+    committee:  { id: "committee",  label: "เข้าวาระ · รอมติกรรมการ", badge: "badge-review", phase: 3, order: 6 },
+    revise:     { id: "revise",     label: "ให้ปรับแก้ตามมติ", badge: "badge-revise", phase: 3, order: 6 },
+    approved:   { id: "approved",   label: "มติ: อนุมัติ · รอประกาศ", badge: "badge-ok", phase: 3, order: 7 },
+    rejected:   { id: "rejected",   label: "มติ: ไม่อนุมัติ", badge: "badge-reject", phase: 3, order: 7 },
+    announced:  { id: "announced",  label: "ประกาศผลจัดสรรทุนแล้ว", badge: "badge-ok", phase: 3, order: 8 }
   };
 
-  /* ลำดับ timeline มาตรฐานที่แสดงในหน้ารายละเอียดโครงการ — ครอบเฉพาะ MVP: ยื่น → เอนดอร์ส/ตรวจ/พิจารณา → มติ → ประกาศ */
-var TIMELINE_ORDER = [
-  "submitted",   // 1. ยื่นข้อเสนอโครงการ
-  "endorse",     // 2. รอรับรองระดับสำนักวิชา (ประธานวิจัย/คณบดี)
-  "screening",   // 3. เจ้าหน้าที่ส่วนกลางตรวจความครบถ้วน
-  "review",      // 4. พิจารณาคู่ขนาน 2 แทร็ก (เนื้อหา/การเงิน)
-  "committee",   // 5. รอมติ คกก.ส่งเสริม
-  "announced"    // 6. ประกาศผลจัดสรรทุน
-];
+  /* ลำดับ Timeline แสดงผล 6 ขั้นตอนหลัก */
+  var TIMELINE_ORDER = ["submitted", "endorse", "screening", "review", "committee", "announced"];
 
   var SCHOOLS = [
     "สำนักวิชาเทคโนโลยีสารสนเทศ", "สำนักวิชาวิทยาศาสตร์", "สำนักวิชาการจัดการ",
@@ -999,21 +987,41 @@ function renderAppNav(pageId) {
   /* timeline HTML สำหรับหน้ารายละเอียดโครงการ
      แสดง milestone หลักตาม TIMELINE_ORDER; สถานะพิเศษ (revise) แมปกลับไป committee,
      (progress) แมปไป ongoing, (financial) แมปไป final เพื่อระบุ "ขั้นปัจจุบัน" */
-  function timelineHTML(p) {
+function timelineHTML(p) {
     var statusMap = { revise: "committee", rejected: "committee" };
     var raw = effectiveStatus(p);
     var effective = statusMap[raw] || raw;
+
+    // คำนวณสเต็ปจริงร่วมกับสถานะ Endorse ของสำนักวิชา
+    if (raw === "submitted") {
+      var endSt = endorseStatus(p.id);
+      if (endSt === "pending") effective = "endorse";
+      else if (endSt === "passed") effective = "screening";
+    }
+
     var curOrder = stageOf(effective).order || 0;
     var html = '<div class="timeline">';
     TIMELINE_ORDER.forEach(function (sid, i) {
-      var s = STAGES[sid];
+      var s = stageOf(sid);
       var cls, mark;
       if (s.order < curOrder) { cls = " timeline__step--done"; mark = "✓"; }
       else if (s.order === curOrder) { cls = " timeline__step--current"; mark = String(i + 1); }
       else { cls = ""; mark = String(i + 1); }
+
+      // แสดงรายละเอียด Sub-status 2 แทร็กในขั้นตอน review
+      var subInfo = "";
+      if (sid === "review" && (effective === "review" || curOrder >= stageOf("review").order)) {
+        var cSt = contentTrackStatus(p.id);
+        var fSt = financeTrackStatus(p.id);
+        subInfo = '<div class="cluster gap-1" style="margin-top:6px; font-size:11px;">' +
+                    '<span>เนื้อหา: ' + trackBadgeHTML(cSt) + '</span> ' +
+                    '<span>การเงิน: ' + trackBadgeHTML(fSt) + '</span>' +
+                  '</div>';
+      }
+
       html += '<div class="timeline__step' + cls + '">' +
                 '<div class="timeline__rail"><div class="timeline__dot">' + mark + '</div><div class="timeline__line"></div></div>' +
-                '<div class="timeline__body"><div class="timeline__title">' + s.label + '</div></div>' +
+                '<div class="timeline__body"><div class="timeline__title">' + s.label + '</div>' + subInfo + '</div>' +
               '</div>';
     });
     html += '</div>';
@@ -1080,10 +1088,9 @@ function switchRole(roleId) {
     financeComment: financeComment, setFinanceComment: setFinanceComment,
     financeOwnerOf: financeOwnerOf, claimFinance: claimFinance, setFinanceOwner: setFinanceOwner, financeLoad: financeLoad,
     bothTracksCleared: bothTracksCleared, resubmitTracks: resubmitTracks,
-    currentRole: currentRole, setRole: setRole, switchRole: switchRole, renderAppNav: renderAppNav,
+   currentRole: currentRole, setRole: setRole, switchRole: switchRole, renderAppNav: renderAppNav,
     toast: toast, modal: modal, timelineHTML: timelineHTML,
-    resetDemoData: resetDemoData,
-    calculateBudgetRules: calculateBudgetRules
+    resetDemoData: resetDemoData, calculateBudgetRules: calculateBudgetRules
   };
 })(window);
 // ==========================================================================
