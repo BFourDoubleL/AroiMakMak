@@ -12,6 +12,73 @@
   <div class="container stack gap-5" id="root"></div>
 </main>
 
+<!-- แถบแสดงผู้รับผิดชอบปัจจุบัน (Pending Responsibility) -->
+<div class="notice notice--info" id="pending-owner-bar" style="margin-bottom: 16px;">
+  <span class="notice__title">สถานะการดำเนินการปัจจุบัน</span>
+  <span class="notice__body" id="pending-owner-text">กำลังโหลดข้อมูลผู้รับผิดชอบ...</span>
+</div>
+
+<!-- ศูนย์รวมข้อคิดเห็นที่ต้องแก้ไข (Centralized Action Panel) -->
+<div class="card card--featured card--pad-sm" id="centralized-feedback-panel" style="display:none; margin-bottom: 24px;">
+  <div class="card__header">
+    <h2 class="text-subhead text-accent">รายการข้อคิดเห็นที่ต้องแก้ไข (Action Required)</h2>
+  </div>
+  <div class="stack gap-3" id="feedback-items-root"></div>
+</div>
+
+<script>
+  // โค้ดดึงข้อมูลผู้รับผิดชอบและรวมข้อคิดเห็น 2 แทร็ก
+  function renderResponsibilityAndFeedback(p) {
+    var raw = RGMS.effectiveStatus(p);
+    var endSt = RGMS.endorseStatus(p.id);
+    var ownerText = "";
+
+    if (raw === "submitted" && endSt === "pending") {
+      ownerText = "รอการพิจารณารับรองจาก: <b>ประธานวิจัยสำนักวิชา / คณบดี (" + p.school + ")</b>";
+    } else if (raw === "screening") {
+      ownerText = "รอการตรวจความครบถ้วนจาก: <b>เจ้าหน้าที่ส่วนบริหารงานวิจัย</b>";
+    } else if (raw === "review") {
+      var cSt = RGMS.contentTrackStatus(p.id);
+      var fSt = RGMS.financeTrackStatus(p.id);
+      var fOwner = RGMS.financeOwnerOf(p.id) || "เจ้าหน้าที่การเงิน (รอ Claim)";
+      ownerText = "อยู่ระหว่างพิจารณา 2 แทร็ก:<br>" +
+                  "• แทร็กเนื้อหา: <b>คณะอนุกรรมการ</b> (" + RGMS.TRACK_STATUS[cSt].label + ")<br>" +
+                  "• แทร็กการเงิน: <b>" + fOwner + "</b> (" + RGMS.TRACK_STATUS[fSt].label + ")";
+    } else if (raw === "committee") {
+      ownerText = "รอการบันทึกมติจาก: <b>คณะกรรมการส่งเสริมและพัฒนางานวิจัย</b>";
+    } else if (raw === "announced") {
+      ownerText = "<b>ประกาศผลการจัดสรรทุนเรียบร้อยแล้ว</b>";
+    }
+    
+    document.getElementById("pending-owner-text").innerHTML = ownerText;
+
+    // รวบรวมข้อคิดเห็นที่ต้องแก้ไข
+    var cComm = RGMS.contentComment(p.id);
+    var fComm = RGMS.financeComment(p.id);
+    var feedbackRoot = document.getElementById("feedback-items-root");
+    var hasFeedback = false;
+    var html = "";
+
+    if (cComm) {
+      hasFeedback = true;
+      html += '<div class="notice notice--wait">' +
+                '<b>ข้อคิดเห็นแทร็กเนื้อหา (คณะอนุกรรมการ):</b><p style="margin-top:4px;">' + cComm + '</p>' +
+              '</div>';
+    }
+    if (fComm) {
+      hasFeedback = true;
+      html += '<div class="notice notice--wait">' +
+                '<b>ข้อคิดเห็นแทร็กการเงิน (ตาราง 17.2):</b><p style="margin-top:4px;">' + fComm + '</p>' +
+              '</div>';
+    }
+
+    if (hasFeedback) {
+      document.getElementById("centralized-feedback-panel").style.display = "block";
+      feedbackRoot.innerHTML = html;
+    }
+  }
+</script>
+  
 <script src="shared.js"></script>
 <script>
   var role = RGMS.currentRole();
