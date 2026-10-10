@@ -283,6 +283,41 @@
     });
   }
 
+function applyTrackLocking(p) {
+  var cCleared = RGMS.contentTrackStatus(p.id) === "cleared";
+  var fCleared = RGMS.financeTrackStatus(p.id) === "cleared";
+
+  // ล็อกหมวดเนื้อหาหากแทร็กเนื้อหาผ่านการรับรองแล้ว
+  if (cCleared) {
+    var contentZone = document.getElementById("zone-proposal-content");
+    if (contentZone) {
+      contentZone.querySelectorAll("input, textarea, select").forEach(function(el) {
+        el.disabled = true;
+        el.classList.add("field-control--locked");
+      });
+      var tag = document.createElement("span");
+      tag.className = "badge-locked";
+      tag.innerHTML = "✓ ผ่านการรับรองแล้ว (ล็อกถาวร)";
+      contentZone.querySelector(".card__header")?.appendChild(tag);
+    }
+  }
+
+  // ล็อกหมวดงบประมาณตาราง 17.2 หากแทร็กการเงินผ่านการรับรองแล้ว
+  if (fCleared) {
+    var budgetZone = document.getElementById("zone-budget-table");
+    if (budgetZone) {
+      budgetZone.querySelectorAll("input, textarea, select, button").forEach(function(el) {
+        el.disabled = true;
+        el.classList.add("field-control--locked");
+      });
+      var tag = document.createElement("span");
+      tag.className = "badge-locked";
+      tag.innerHTML = "✓ ผ่านการรับรองแล้ว (ล็อกถาวร)";
+      budgetZone.querySelector(".card__header")?.appendChild(tag);
+    }
+  }
+}
+  
   function doAct(act) {
     if (act === "revise") {
       // ส่งฉบับปรับแก้ — อัตโนมัติ ไม่ให้นักวิจัยเลือกแทร็กเอง (FR-84 ฉบับแก้ไข): แทร็กที่ cleared แล้วถูกล็อกไว้
