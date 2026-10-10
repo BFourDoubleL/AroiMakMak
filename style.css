@@ -960,3 +960,60 @@ form-stepper {
   padding: 2px 8px;
   border-radius: 4px;
 }
+
+/* Toast Notification Container — กำหนดตำแหน่งมุมขวาล่าง */
+.toast-wrap {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+/* Toast Card Style & Animation */
+.toast {
+  pointer-events: auto;
+  min-width: 280px;
+  max-width: 380px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background-color: #1A1A24;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  border-left: 4px solid #3B82F6; /* สีฟ้าตั้งต้น */
+  
+  /* Animation เด้งมาจากขวาล่าง */
+  animation: toastSlideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* ประเภทของ Toast แยกตามสีแถบข้าง */
+.toast--ok {
+  border-left-color: #10B981; /* สีเขียว สำเร็จ */
+}
+
+.toast--wait {
+  border-left-color: #F59E0B; /* สีส้ม เตือน/รอ */
+}
+
+.toast--reject {
+  border-left-color: #EF4444; /* สีแดง ข้อผิดพลาด */
+}
+
+/* Keyframes สำหรับเอฟเฟกต์สไลด์เด้งเข้า */
+@keyframes toastSlideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
